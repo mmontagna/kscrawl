@@ -38,7 +38,7 @@ class RedisQueue(AbstractQueue):
       self.redis.lpush(self.generate_queue(self._destination_hash(thing)), pickledObj)
 
   def get(self):
-    pickledObj = self.redis.lpop(self.generate_queue(self.get_my_client_number()))
+    pickledObj = self.redis.rpop(self.generate_queue(self.get_my_client_number()))
     thing = None
     try:
       thing  = pickle.loads(pickledObj)
