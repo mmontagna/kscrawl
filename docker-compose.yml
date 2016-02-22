@@ -9,5 +9,6 @@ pybelt:
   command: sleep 1000000
   volumes:
     - ./:/app
+    - ~/.aws:/.aws
   environment:
     - REDIS_HOST=redis
