@@ -8,6 +8,7 @@ class Response:
     self.content = unicode(raw, self.encoding['encoding'])
     self.request = request
     self.accessed = int(time.time())
+    self.output = []
     try:
       self.soup = BeautifulSoup(self.content, "html.parser")
     except:
