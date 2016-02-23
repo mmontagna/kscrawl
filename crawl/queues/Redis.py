@@ -1,5 +1,5 @@
 import redis, os, uuid
-import cPickle as pickle
+import dill as pickle
 from crawl.queues.Abstract import AbstractQueue
 
 class RedisQueue(AbstractQueue):
