@@ -4,7 +4,7 @@ import uuid, cStringIO, gzip, json, boto3, os, datetime
 from urlparse import urlparse
 
 class S3Store(AbstractProcessor):
-  def __init__(self, bucket, buffer_size=100, s3_bucket_object=None):
+  def __init__(self, bucket, buffer_size=1000, s3_bucket_object=None):
     #domain.crawl_id.folder.name
     self.output = defaultdict(lambda: defaultdict(lambda : defaultdict(lambda : defaultdict(lambda : []))))
     self.max_buffer_size = buffer_size
