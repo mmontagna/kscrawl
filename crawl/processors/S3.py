@@ -33,14 +33,14 @@ class S3Store(AbstractProcessor):
         self.write(domain, crawl_id)
 
   def write(self, group, crawl_id):
+    object_ids = defaultdict(lambda : str(uuid.uuid4()))
     for folder, name in [(folder, name) for folder in self.output[group][crawl_id] for name in self.output[group][crawl_id][folder]]:
       print 'writing', group, crawl_id, folder, name
       content = json.dumps(dict([(x[0], x[1]) for x in self.output[group][crawl_id][folder][name]]))
-      self.writeToS3(group, folder, name, crawl_id, content)
-    self.output[group][crawl_id][folder][name] = []
+      self.writeToS3(group, folder, name, crawl_id, content, object_ids[group + crawl_id])
+      self.output[group][crawl_id][folder][name] = []
 
-  def writeToS3(self, group, folder, name, crawl_id, content):
-    object_id = str(uuid.uuid4())
+  def writeToS3(self, group, folder, name, crawl_id, content, object_id):
     key = os.path.join('crawl', group, crawl_id, folder, name + '.' + object_id + '.json.gz')
     fgz = cStringIO.StringIO()
     with gzip.GzipFile(mode='wb', fileobj=fgz) as gzip_obj:
