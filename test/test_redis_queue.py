@@ -31,7 +31,7 @@ class TestRedisQueue(unittest.TestCase):
     Q1 = RedisQueue(hash_function=domain_hash)
     Q2 = RedisQueue(hash_function=domain_hash)
     Q3 = RedisQueue(hash_function=domain_hash)
-    links = ['http://a.com', 'http://b.com', 'http://c.com']
+    links = ['http://a.com/', 'http://b.com/', 'http://c.com/']
     requests = [LinkCrawlRequest(x) for x in links]
 
     #Queues are empty
