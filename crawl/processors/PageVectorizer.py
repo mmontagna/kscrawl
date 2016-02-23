@@ -2,9 +2,11 @@ from crawl.processors.Abstract import AbstractProcessor
 from collections import Counter
 from sklearn.feature_extraction import FeatureHasher
 from crawl.processors import ResponseOutput
-import itertools, string
+import itertools, string, sys, unicodedata
 
 class PageVectorizer(AbstractProcessor):
+  tbl = dict.fromkeys(i for i in xrange(sys.maxunicode)
+                        if unicodedata.category(unichr(i)).startswith('P'))
   def __init__(self, n_features=100):
     self.hasher = FeatureHasher(n_features=n_features, non_negative=True)
 
@@ -18,8 +20,7 @@ class PageVectorizer(AbstractProcessor):
     [x.extract() for x in response.soup.findAll('script')]
     for tag in response.soup.findAll():
       tag.string = tag.text + ' '
-
-    text = str(response.soup.get_text()).translate(string.maketrans("",""), string.punctuation)
+    text = response.soup.get_text().translate(self.tbl)
     text = filter(lambda x: x != '' and not x.isspace(), text.split())
     text = [x.lower() for x in text]
     return text
