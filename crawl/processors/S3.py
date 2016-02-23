@@ -37,7 +37,7 @@ class S3Store(AbstractProcessor):
       print 'writing', group, crawl_id, folder, name
       content = json.dumps(dict([(x[0], x[1]) for x in self.output[group][crawl_id][folder][name]]))
       self.writeToS3(group, folder, name, crawl_id, content)
-    self.output[group][crawl_id] = []
+    self.output[group][crawl_id][folder][name] = []
 
   def writeToS3(self, group, folder, name, crawl_id, content):
     object_id = str(uuid.uuid4())
