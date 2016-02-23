@@ -3,6 +3,7 @@ from collections import Counter
 from sklearn.feature_extraction import FeatureHasher
 from crawl.processors import ResponseOutput
 import itertools, string, sys, unicodedata
+from bs4 import BeautifulSoup
 
 class PageVectorizer(AbstractProcessor):
   tbl = dict.fromkeys(i for i in xrange(sys.maxunicode)
@@ -17,10 +18,11 @@ class PageVectorizer(AbstractProcessor):
     Array of strings
   """
   def clean_and_filter(self, response):
-    [x.extract() for x in response.soup.findAll('script')]
-    for tag in response.soup.findAll():
+    soup = BeautifulSoup(response.content, 'html.parser')
+    [x.extract() for x in soup.findAll('script')]
+    for tag in soup.findAll():
       tag.string = tag.text + ' '
-    text = response.soup.get_text().translate(self.tbl)
+    text = soup.get_text().translate(self.tbl)
     text = filter(lambda x: x != '' and not x.isspace(), text.split())
     text = [x.lower() for x in text]
     return text
