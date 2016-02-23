@@ -57,6 +57,7 @@ class RedisQueue(AbstractQueue):
   def number_clients(self):
     next = len(self.get_clients())
     if (next < self.last_num_clients):
+      print "Number of queues changed, rebalancing"
       delta = self.last_num_clients - next
       for i in range(self.last_num_clients, self.last_num_clients - delta, -1):
         self.rebalance(i - 1)
