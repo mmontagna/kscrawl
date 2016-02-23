@@ -1,8 +1,8 @@
 from crawl.queues.Abstract import AbstractQueue
 
 """
-  A queue which doesn't send objects which
-  don't pass an acceptance test.
+  A queue which only sends objects which
+  pass an acceptance test.
 
   Eg. use for restricting a crawl to a
   set of domains.
