@@ -12,8 +12,8 @@ class TestPageVectorizer(unittest.TestCase):
     response = Response('<html><body><h1>Crawling is fun<h1><p>Definitely!</body></html>', request)
     self.pv.process('http://example.com/', response)
 
-    self.assertEquals('auxiliary', response.output[0].folder)
-    self.assertEquals('feature_hash', response.output[0].name)
+    self.assertEquals('auxiliary', response.output[1].folder)
+    self.assertEquals('feature_hash', response.output[1].name)
     self.assertIsNotNone(response.output[0].content)
 
 
