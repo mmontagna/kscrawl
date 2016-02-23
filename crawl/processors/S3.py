@@ -41,7 +41,7 @@ class S3Store(AbstractProcessor):
 
   def writeToS3(self, group, folder, name, crawl_id, content):
     object_id = str(uuid.uuid4())
-    key = os.path.join(group, crawl_id, folder, name + '.' + object_id + '.json.gz')
+    key = os.path.join('crawl', group, crawl_id, folder, name + '.' + object_id + '.json.gz')
     fgz = cStringIO.StringIO()
     with gzip.GzipFile(mode='wb', fileobj=fgz) as gzip_obj:
         gzip_obj.write(content)
