@@ -38,6 +38,7 @@ class RedisQueue(AbstractQueue):
       self.redis.lpush(self.generate_queue(self._destination_hash(thing)), pickledObj)
 
   def get(self):
+    self.register()
     pickledObj = self.redis.rpop(self.generate_queue(self.get_my_client_number()))
     thing = None
     try:
@@ -46,6 +47,8 @@ class RedisQueue(AbstractQueue):
       if thing is not None:
         print "RedisQueue: Unable to unpickle object req", pickledObj
       pass
+    if thing is None:
+      self.number_clients() #See if any queues dropped out.
     return thing
 
   def get_clients(self):
