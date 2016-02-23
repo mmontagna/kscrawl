@@ -42,16 +42,14 @@ class RedisQueue(AbstractQueue):
   def get(self):
     self.register()
     pickledObj = self.redis.rpop(self.generate_queue(self.get_my_client_number()))
-    thing = None
-    try:
-      thing  = pickle.loads(pickledObj)
-    except:
-      if thing is not None:
-        print "RedisQueue: Unable to unpickle object req", pickledObj
-      pass
-    if thing is None:
+    if (pickledObj is None):
       self.number_clients() #See if any queues dropped out.
-    return thing
+      return None
+
+    try:
+      return pickle.loads(pickledObj)
+    except Exception as e:
+      print "RedisQueue: Unable to unpickle object req", e
 
   def get_clients(self):
     return self.redis.keys(self.worker_marker_prefix + self.name_space + '*')
