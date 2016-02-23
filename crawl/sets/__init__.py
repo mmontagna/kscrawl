@@ -4,5 +4,6 @@
 """
 
 from .SimpleSet import SimpleSet
+from .RedisSet import RedisSet
 
-__all__ = ['SimpleSet']
+__all__ = ['SimpleSet', 'RedisSet']
