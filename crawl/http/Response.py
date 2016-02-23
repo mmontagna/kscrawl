@@ -7,7 +7,11 @@ class Response:
   def __init__(self, raw, request):
     self.raw = raw
     self.encoding = chardet.detect(raw)
-    self.content = unicode(raw, self.encoding['encoding'], errors='replace')
+    if (self.encoding['encoding']):
+      encoding = self.encoding['encoding']
+    else:
+      encoding = 'ascii'
+    self.content = unicode(raw, encoding, errors='replace')
     self.request = request
     self.accessed = int(time.time())
     self.output = []
