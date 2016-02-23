@@ -17,9 +17,8 @@ class S3Store(AbstractProcessor):
 
   def process(self, url, response):
     domain = urlparse(url).netloc
-    cleaned = unicode(response.raw, errors='replace') ## USE  THIS IN EARLIER PROCESSOR STEP
     for output in response.output:
-      self.output[domain][response.request.crawl_id][output.folder][output.name].append(output)
+      self.output[domain][response.request.crawl_id][output.folder][output.name].append((url, (output.content, response.accessed)))
 
     self.checkBuffer()
 
@@ -36,7 +35,7 @@ class S3Store(AbstractProcessor):
   def write(self, group, crawl_id):
     for folder, name in [(folder, name) for folder in self.output[group][crawl_id] for name in self.output[group][crawl_id][folder]]:
       print 'writing', group, crawl_id, folder, name
-      content = json.dumps([x.content for x in self.output[group][crawl_id][folder][name]])
+      content = json.dumps(dict([(x[0], x[1]) for x in self.output[group][crawl_id][folder][name]]))
       self.writeToS3(group, folder, name, crawl_id, content)
     self.output[group][crawl_id] = []
 
