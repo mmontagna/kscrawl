@@ -7,6 +7,7 @@ class RedisQueue(AbstractQueue):
   worker_marker_prefix = 'redisqueue:worker:marker:'
 
   def __init__(self, registration_expiration_ms=60000, hash_function=hash, name_space='default'):
+    self.allow_registration = False
     self.queue = []
     self.redis = redis.StrictRedis(host=os.environ['REDIS_HOST'], port=6379, db=0)
     self.uuid = str(uuid.uuid4())
@@ -25,8 +26,9 @@ class RedisQueue(AbstractQueue):
     return self.worker_marker_prefix + self.name_space + self.uuid
 
   def register(self):
-    self.redis.psetex(self.generate_worker_marker(), self.registration_expiration_ms, 1)
-    self.get_clients()
+    if (self.allow_registration):
+      self.redis.psetex(self.generate_worker_marker(), self.registration_expiration_ms, 1)
+      self.get_clients()
 
   def _destination_hash(self, thing):
     return self.hash(thing) % self.number_clients()
