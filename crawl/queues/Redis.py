@@ -55,7 +55,7 @@ class RedisQueue(AbstractQueue):
     return self.redis.keys(self.worker_marker_prefix + self.name_space + '*')
 
   def number_clients(self):
-    next = len(self.get_clients())
+    next = max(1, len(self.get_clients())) #Assume one client exists
     if (next < self.last_num_clients):
       print "Number of queues changed, rebalancing"
       delta = self.last_num_clients - next
