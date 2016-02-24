@@ -7,7 +7,7 @@ class LinkCrawlRequest:
     self.attempts = 0
     self.crawl_id = parent.crawl_id if parent else crawl_id
     self.depth = parent.depth + 1 if parent else 0
-    self.depth_limit = depth_limit
+    self.depth_limit = parent.depth_limit if parent else depth_limit
     self.accept = parent.accept if parent else accept
 
   def follow(self, parent):
