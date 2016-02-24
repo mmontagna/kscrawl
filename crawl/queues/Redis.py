@@ -51,6 +51,19 @@ class RedisQueue(AbstractQueue):
     except Exception as e:
       print "RedisQueue: Unable to unpickle object req", e
 
+
+  def all_items(self, limit=int(10e6)):
+    num = self.number_clients()
+    pickleLists = [self.redis.lrange(self.generate_queue(i), 0, limit) for i in range(self.number_clients())]
+    pickles = [pickled for pickleList in pickleLists for pickled in pickleList]
+    cucumbers = [pickle.loads(pickledThing) for pickledThing in pickles]
+    return cucumbers
+
+
+  def items_in_queues(self):
+    num = self.number_clients()
+    return sum([self.redis.llen(self.generate_queue(i)) for i in range(self.number_clients())])
+
   def get_clients(self):
     return self.redis.keys(self.worker_marker_prefix + self.name_space + '*')
 
