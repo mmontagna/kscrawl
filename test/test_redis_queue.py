@@ -24,8 +24,11 @@ class TestRedisQueue(unittest.TestCase):
       Q2.register()
 
       time.sleep(0.1)
-      self.assertEqual(0, Q1.number_clients())
-      self.assertEqual(0, Q2.number_clients())
+      #We see 1 queue even when there are 0
+      #This is expected, it allows one to preload
+      #crawler state, before starting workers.
+      self.assertEqual(1, Q3.number_clients())
+      self.assertEqual(1, Q3.number_clients())
 
   def test_send_location(self):
     self.Q.redis.flushdb()
