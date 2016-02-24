@@ -1,4 +1,4 @@
-import unittest, boto3
+import unittest, boto3, time
 from crawl.processors import S3Store
 from crawl.processors import ResponseOutput
 from crawl import LinkCrawlRequest
@@ -47,6 +47,18 @@ class TestS3Store(unittest.TestCase):
     resp.output.append(ResponseOutput('content', 'images', {'content' : 'page', 'accessed' : 123}))
     [store.process('https://example.com/1', resp) for i in range(0, 11)]
     store.close()
+
+  def test_periodic_flush(self):
+    store, _ = self.make_s3_store(buffer_size=100)
+    store.flush_time = 0.1
+    store.write = MagicMock()
+    resp = Response("<p>This is, a Test.</p>", LinkCrawlRequest('http://example.com/'))
+    resp.output.append(ResponseOutput('content', 'pages', {'content' : 'page', 'accessed' : 123}))
+    [store.process('https://example.com/1', resp) for i in range(0, 11)]
+    time.sleep(0.1)
+    store.write.assert_not_called()
+    store.tick()
+    store.write.assert_called_once_with('example.com', mock.ANY)
 
 
 if __name__ == "__main__":
