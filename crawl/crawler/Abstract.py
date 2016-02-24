@@ -9,6 +9,7 @@ class AbstractCrawler():
 
     self.queue = queue
     self.urlset = urlset
+    self.throttle_control = None
     self.http = http
     self.processors = []
 
