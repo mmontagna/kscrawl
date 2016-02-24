@@ -1,4 +1,4 @@
-import uuid, argparse
+import uuid, argparse, datetime
 from crawl.queues.Redis import RedisQueue
 from crawl.LinkCrawlRequest import LinkCrawlRequest, domain_filter
 import crawl.default
@@ -12,7 +12,7 @@ parser.add_argument('--depth', default=float('+inf'), help='Depth limit', type=i
 parser.add_argument('--restrict-to-origin', default=False, help='If true then dont crawl other domains')
 args = parser.parse_args()
 
-crawl_id = str(uuid.uuid4())
+crawl_id = str(datetime.date.today()) + '-' + str(uuid.uuid4())
 
 RQ = RedisQueue(name_space=args.name_space, hash_function=crawl.default.domain_hash)
 
