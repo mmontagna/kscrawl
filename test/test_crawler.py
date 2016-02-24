@@ -5,7 +5,7 @@ from crawl.sets import SimpleSet
 from crawl.crawler import SimpleCrawler
 from crawl.http.Abstract import AbstractHttp
 from crawl.http.Response import Response
-from crawl.LinkCrawlRequest import LinkCrawlRequest
+from crawl.LinkCrawlRequest import LinkCrawlRequest, domain_filter
 from mock import MagicMock
 import mock
 from attrdict import AttrDict
@@ -71,6 +71,34 @@ class TestCrawler(unittest.TestCase):
     #Should consume 3 responses before hitting depth limit
     crawler.crawl()
     self.assertEqual(7, len(mockHttp.responses)) # Should be 5 responses left
+
+  def setup_crawl_specific_filter(self, accept):
+    Q = LocalQueue()
+    S = SimpleSet()
+    Q.send([LinkCrawlRequest('https://test.com', accept=accept)])
+    responses = ['<a href="/' + str(i) + '">l</a><a href="https://nottest.com/' + str(i) + '">l</a>' for i in range(0, 2)]
+    mockHttp = FakeHttp(responses)
+    crawler = SimpleCrawler(Q, S, mockHttp)
+    crawler.stop_on_empty()
+    fakeProcessor = AttrDict({'process' : MagicMock(), 'close': MagicMock()})
+    crawler.add_response_processor(fakeProcessor)
+
+    crawler.crawl()
+    return fakeProcessor
+
+  def test_crawl_specific_filter(self):
+    #Test filter does filter
+    fakeProcessor = self.setup_crawl_specific_filter(domain_filter)
+    fakeProcessor.process.assert_any_call('https://test.com/', mock.ANY)
+    fakeProcessor.process.assert_any_call('https://test.com/0', mock.ANY)
+    fakeProcessor.process.assert_any_call('https://test.com/1', mock.ANY)
+    self.assertEqual(3, len(fakeProcessor.process.call_args_list)) #No other calls => didn't crawl notest.com
+
+    #Make sure we get the other urls without the filter
+    fakeProcessor = self.setup_crawl_specific_filter(None)
+    fakeProcessor.process.assert_any_call('https://nottest.com/0', mock.ANY)
+    fakeProcessor.process.assert_any_call('https://nottest.com/1', mock.ANY)
+
 
 
 if __name__ == "__main__":
