@@ -23,7 +23,8 @@ class FakeHttp(AbstractHttp):
     return Response(temp, req)
 
 class TestCrawler(unittest.TestCase):
-
+  def make_processor_mock(self):
+    return AttrDict({'process' : MagicMock(), 'tick' : MagicMock(), 'close': MagicMock()})
   def test_basic_crawl(self):
     Q = LocalQueue()
 
@@ -32,7 +33,7 @@ class TestCrawler(unittest.TestCase):
     mockHttp = FakeHttp(['<a href="https://test.com/1">l</a><a href="2">l</a><a href="/3">l</a>'] * 10)
     crawler = SimpleCrawler(Q, S, mockHttp)
     crawler.stop_on_empty()
-    fakeProcessor = AttrDict({'process' : MagicMock(), 'close': MagicMock()})
+    fakeProcessor = self.make_processor_mock()
     crawler.add_response_processor(fakeProcessor)
     crawler.crawl()
     fakeProcessor.process.assert_any_call('https://test.com/', mock.ANY)
@@ -50,7 +51,7 @@ class TestCrawler(unittest.TestCase):
     crawler = SimpleCrawler(Q, S, mockHttp)
     crawler.depth_limit = 5
     crawler.stop_on_empty()
-    fakeProcessor = AttrDict({'process' : MagicMock(), 'close': MagicMock()})
+    fakeProcessor = self.make_processor_mock()
     crawler.add_response_processor(fakeProcessor)
 
     #Should consume 5 responses before hitting depth limit
@@ -65,7 +66,7 @@ class TestCrawler(unittest.TestCase):
     mockHttp = FakeHttp(responses)
     crawler = SimpleCrawler(Q, S, mockHttp)
     crawler.stop_on_empty()
-    fakeProcessor = AttrDict({'process' : MagicMock(), 'close': MagicMock()})
+    fakeProcessor = self.make_processor_mock()
     crawler.add_response_processor(fakeProcessor)
 
     #Should consume 3 responses before hitting depth limit
@@ -80,7 +81,7 @@ class TestCrawler(unittest.TestCase):
     mockHttp = FakeHttp(responses)
     crawler = SimpleCrawler(Q, S, mockHttp)
     crawler.stop_on_empty()
-    fakeProcessor = AttrDict({'process' : MagicMock(), 'close': MagicMock()})
+    fakeProcessor = self.make_processor_mock()
     crawler.add_response_processor(fakeProcessor)
 
     crawler.crawl()
