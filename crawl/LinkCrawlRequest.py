@@ -4,6 +4,7 @@ class LinkCrawlRequest:
 
   def __init__(self, link, parent = None, crawl_id='0', depth_limit=float('+inf'), accept=None):
     self.link = urlnorm.norm(urlparse.urljoin(parent.link if parent else '', link))
+    self.link = self.link.split('#')[0]
     self.attempts = 0
     self.crawl_id = parent.crawl_id if parent else crawl_id
     self.depth = parent.depth + 1 if parent else 0
