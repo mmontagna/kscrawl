@@ -10,9 +10,10 @@ class TestRedisQueue(unittest.TestCase):
   Q = RedisQueue()
   def test_client_counts(self):
       self.Q.redis.flushdb()
-      Q1 = RedisQueue()
+      Q1 = RedisQueue(allow_registration=True)
       self.assertEqual(1, Q1.number_clients())
-      Q2 = RedisQueue()
+      Q2 = RedisQueue(allow_registration=True)
+      Q3 = RedisQueue(allow_registration=False)
       time.sleep(.3)
       self.assertEqual(2, Q1.number_clients())
       self.assertEqual(2, Q2.number_clients())
@@ -28,9 +29,9 @@ class TestRedisQueue(unittest.TestCase):
 
   def test_send_location(self):
     self.Q.redis.flushdb()
-    Q1 = RedisQueue(hash_function=domain_hash)
-    Q2 = RedisQueue(hash_function=domain_hash)
-    Q3 = RedisQueue(hash_function=domain_hash)
+    Q1 = RedisQueue(hash_function=domain_hash, allow_registration=True)
+    Q2 = RedisQueue(hash_function=domain_hash, allow_registration=True)
+    Q3 = RedisQueue(hash_function=domain_hash, allow_registration=True)
     links = ['http://a.com/', 'http://b.com/', 'http://c.com/']
     requests = [LinkCrawlRequest(x) for x in links]
 
@@ -54,7 +55,7 @@ class TestRedisQueue(unittest.TestCase):
   def test_large_sets_links_and_queues(self):
     self.Q.redis.flushdb()
     links = [LinkCrawlRequest('http://'+str(i)+'.com') for i in range(0, 133)]
-    Qs = [RedisQueue(hash_function=domain_hash) for i in range(0, 25)]
+    Qs = [RedisQueue(hash_function=domain_hash, allow_registration=True) for i in range(0, 25)]
     Qs[0].send(links)
     num_retrieved = sum([len([link for link in Q]) for Q in Qs])
     self.assertEqual(133, num_retrieved)
@@ -64,9 +65,9 @@ class TestRedisQueue(unittest.TestCase):
     self.Q.redis.flushdb()
     links = [LinkCrawlRequest('http://'+str(i)+'.com') for i in range(0, 40)]
 
-    Q1 = RedisQueue(hash_function=domain_hash)
-    Q2 = RedisQueue(hash_function=domain_hash)
-    Q3 = RedisQueue(hash_function=domain_hash)
+    Q1 = RedisQueue(hash_function=domain_hash, allow_registration=True)
+    Q2 = RedisQueue(hash_function=domain_hash, allow_registration=True)
+    Q3 = RedisQueue(hash_function=domain_hash, allow_registration=True)
     Q1.send(links)
 
     Q3.number_clients() #Force Q3 to track number of clients.
