@@ -20,6 +20,10 @@ class AbstractCrawler():
     for processor in self.processors:
       processor.process(url, response)
 
+  def tick(self):
+    for processor in self.processors:
+      processor.tick()
+
   def close(self):
     for processor in self.processors:
       processor.close()
