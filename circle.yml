@@ -6,3 +6,6 @@ dependencies:
     - pip install numpy
     - pip install scipy
     - pip install scikit-learn
+test:
+  override:
+    - python -m unittest discover ./test
