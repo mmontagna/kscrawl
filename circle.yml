@@ -1,8 +1,8 @@
 machine:
   environment:
     REDIS_HOST: localhost
-  dependencies:
-    pre:
-      - pip install numpy
-      - pip install scipy
-      - pip install scikit-learn
+dependencies:
+  pre:
+    - pip install numpy
+    - pip install scipy
+    - pip install scikit-learn
