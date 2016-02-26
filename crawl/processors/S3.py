@@ -9,6 +9,7 @@ class S3Store(AbstractProcessor):
     #domain.crawl_id.folder.name
     self.output = defaultdict(lambda: defaultdict(lambda : defaultdict(lambda : defaultdict(lambda : []))))
     self.last_processed_times = defaultdict(lambda: defaultdict(lambda : time()))
+    self.crawl_folders = {}
     self.flush_time = periodic_flush
     self.max_buffer_size = buffer_size
 
@@ -26,6 +27,7 @@ class S3Store(AbstractProcessor):
   def process(self, url, response):
     domain = urlparse(url).netloc
     for output in response.output:
+      self.crawl_folders[response.request.crawl_id] = response.request.output_prefix
       self.output[domain][response.request.crawl_id][output.folder][output.name].append((url, (output.content, response.accessed)))
       self.last_processed_times[domain][response.request.crawl_id] = time()
     self.checkBuffer()
@@ -53,12 +55,13 @@ class S3Store(AbstractProcessor):
     for folder, name in [(folder, name) for folder in self.output[group][crawl_id] for name in self.output[group][crawl_id][folder]]:
       print 'writing', group, crawl_id, folder, name
       content = json.dumps(dict([(x[0], x[1]) for x in self.output[group][crawl_id][folder][name]]))
-      self.writeToS3(group, folder, name, crawl_id, content, object_ids[group + crawl_id])
+      crawl_folder = self.crawl_folders[crawl_id]
+      self.writeToS3(crawl_folder, group, folder, name, crawl_id, content, object_ids[group + crawl_id])
       self.output[group][crawl_id][folder][name] = []
     del self.output[group][crawl_id]
 
-  def writeToS3(self, group, folder, name, crawl_id, content, object_id):
-    key = os.path.join('crawl', group, crawl_id, folder, name + '.' + object_id + '.json.gz')
+  def writeToS3(self, crawl_folder, group, folder, name, crawl_id, content, object_id):
+    key = os.path.join(crawl_folder, group, crawl_id, folder, name + '.' + object_id + '.json.gz')
     fgz = cStringIO.StringIO()
     with gzip.GzipFile(mode='wb', fileobj=fgz) as gzip_obj:
         gzip_obj.write(content)
