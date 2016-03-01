@@ -7,7 +7,7 @@ import crawl.default
 
 parser = argparse.ArgumentParser(description='Add URLs to start a crawl')
 parser.add_argument('--name_space', default='default', help='The crawl namespace.')
-parser.add_argument('--urls', help='URLs to start crawl with', nargs='*')
+parser.add_argument('--urls', required=True, help='URLs to start crawl with', nargs='*')
 parser.add_argument('--depth', default=float('+inf'), help='Depth limit', type=int)
 parser.add_argument('--output_prefix', default='crawl', help='enclosing s3 prefix')
 parser.add_argument('--restrict-to-origin', default=False, help='If true then dont crawl other domains')
