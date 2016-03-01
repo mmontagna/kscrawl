@@ -9,6 +9,7 @@ parser = argparse.ArgumentParser(description='Add URLs to start a crawl')
 parser.add_argument('--name_space', default='default', help='The crawl namespace.')
 parser.add_argument('--urls', required=True, help='URLs to start crawl with', nargs='*')
 parser.add_argument('--depth', default=float('+inf'), help='Depth limit', type=int)
+parser.add_argument('--output_bucket', required=True)
 parser.add_argument('--output_prefix', default='crawl', help='enclosing s3 prefix')
 parser.add_argument('--restrict-to-origin', default=False, help='If true then dont crawl other domains')
 args = parser.parse_args()
@@ -27,5 +28,6 @@ RQ.send([LinkCrawlRequest(url,
                           crawl_id=crawl_id,
                           depth_limit=args.depth,
                           accept=accept,
-                          output_prefix=args.output_prefix
+                          output_prefix=args.output_prefix,
+                          bucket=args.output_bucket
                           ) for url in args.urls])

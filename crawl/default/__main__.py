@@ -24,7 +24,7 @@ try:
     crawler.throttle_control = (1 / args.global_throttle)
 
   crawler.add_response_processor(PageVectorizer())
-  crawler.add_response_processor(S3Store('mmontagna-crawl-test'))
+  crawler.add_response_processor(S3Store())
 
   crawler.crawl()
 except KeyboardInterrupt:

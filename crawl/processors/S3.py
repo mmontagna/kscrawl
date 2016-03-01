@@ -5,7 +5,7 @@ from time import time
 from urlparse import urlparse
 
 class S3Store(AbstractProcessor):
-  def __init__(self, bucket, buffer_size=1000, s3_bucket_object=None, periodic_flush=60):
+  def __init__(self, buffer_size=1000, periodic_flush=60):
     #domain.crawl_id.folder.name
     self.output = defaultdict(lambda: defaultdict(lambda : defaultdict(lambda : defaultdict(lambda : []))))
     self.last_processed_times = defaultdict(lambda: defaultdict(lambda : time()))
@@ -13,11 +13,14 @@ class S3Store(AbstractProcessor):
     self.flush_time = periodic_flush
     self.max_buffer_size = buffer_size
 
-    self.bucket = bucket
-    if (s3_bucket_object is not None):
-      self.s3_bucket_object = s3_bucket_object
-    else:
-      self.s3_bucket_object = boto3.resource('s3').Bucket(self.bucket)
+    self.buckets = {}
+    self.crawl_buckets = {}
+
+  def get_bucket_for(self, bucket):
+    if bucket not in self.buckets:
+      self.buckets[bucket] = boto3.resource('s3').Bucket(bucket)
+    return self.buckets[bucket]
+
 
   def tick(self):
     for domain, crawl_id in self.domains_and_crawls():
@@ -28,6 +31,8 @@ class S3Store(AbstractProcessor):
     domain = urlparse(url).netloc
     for output in response.output:
       self.crawl_folders[response.request.crawl_id] = response.request.output_prefix
+      self.crawl_buckets[response.request.crawl_id] = response.request.output_bucket
+
       self.output[domain][response.request.crawl_id][output.folder][output.name].append((url, (output.content, response.accessed)))
       self.last_processed_times[domain][response.request.crawl_id] = time()
     self.checkBuffer()
@@ -65,7 +70,7 @@ class S3Store(AbstractProcessor):
     fgz = cStringIO.StringIO()
     with gzip.GzipFile(mode='wb', fileobj=fgz) as gzip_obj:
         gzip_obj.write(content)
-    self.s3_bucket_object.Object(key).put(Body=fgz.getvalue())
+    self.get_bucket_for(self.crawl_buckets[crawl_id]).Object(key).put(Body=fgz.getvalue())
 
   def close(self):
     for group, crawl_id in self.domains_and_crawls():
