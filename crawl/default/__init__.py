@@ -4,7 +4,7 @@ import time
 def domain_hash(linkCrawlReq):
   dest = 0
   try:
-    minute = str(int(time.time()) %  10) # (60*10)
+    minute = str(int(time.time()) %  (60*10))
     dest = hash(urlparse(linkCrawlReq.link).netloc + minute + str(linkCrawlReq.attempts))
   except Exception as e:
     print e
