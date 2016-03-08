@@ -27,8 +27,15 @@ class LinkCrawlRequest:
 
 
 def domain_filter(next_url, parent_response):
-  from urlparse import urlparse
   try:
-    return urlparse(next_url).netloc == urlparse(parent_response.request.link).netloc
+    return urlparse.urlparse(next_url).netloc == urlparse.urlparse(parent_response.request.link).netloc
   except:
     return False
+
+def create_domains_filter(domains):
+  def _h(next_url, parent_response):
+    try:
+      return urlparse.urlparse(next_url).netloc in domains
+    except:
+      return False
+  return _h

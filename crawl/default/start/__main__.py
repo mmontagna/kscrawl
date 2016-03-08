@@ -1,6 +1,6 @@
 import uuid, argparse, datetime
 from crawl.queues.Redis import RedisQueue
-from crawl.LinkCrawlRequest import LinkCrawlRequest, domain_filter
+from crawl.LinkCrawlRequest import LinkCrawlRequest, domain_filter, create_domains_filter
 import crawl.default
 
 
@@ -11,15 +11,18 @@ parser.add_argument('--urls', required=True, help='URLs to start crawl with', na
 parser.add_argument('--depth', default=float('+inf'), help='Depth limit', type=int)
 parser.add_argument('--output_bucket', required=True)
 parser.add_argument('--output_prefix', default='crawl', help='enclosing s3 prefix')
-parser.add_argument('--restrict-to-origin', default=False, help='If true then dont crawl other domains')
+parser.add_argument('--restrict', nargs='*', default=False, help='If true then dont crawl other domains')
+
 args = parser.parse_args()
 
 crawl_id = str(datetime.date.today()) + '-' + str(uuid.uuid4())
 
 RQ = RedisQueue(name_space=args.name_space, hash_function=crawl.default.domain_hash)
 
-if (args.restrict_to_origin):
+if (args.restrict == 'origin'):
   accept = domain_filter
+elif (args.restrict):
+  accept = create_domains_filter(args.restrict)
 else:
   accept = None
 
