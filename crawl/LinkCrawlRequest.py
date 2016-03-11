@@ -25,7 +25,11 @@ class LinkCrawlRequest:
   def id(self):
     return self.crawl_id + ':' + self.link
 
-
+  def __eq__(self, other):
+      if isinstance(other, self.__class__):
+          return ((self.link == other.link) and (self.crawl_id == other.crawl_id))
+      else:
+          return False
 def domain_filter(next_url, parent_response):
   try:
     return urlparse.urlparse(next_url).netloc == urlparse.urlparse(parent_response.request.link).netloc
