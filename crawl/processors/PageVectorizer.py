@@ -39,7 +39,8 @@ class PageVectorizer(AbstractProcessor):
     x, y = feature_vector.nonzero()
     return [(int(y[i]), int(feature_vector[x[i], y[i]])) for i in range(len(x))]
 
-  def process(self, url, response):
+  def process(self, crawlRequest, response):
+    url = crawlRequest.link
     response.feature_vector = self.feature_vector(self.clean_and_filter(response))
 
     response.output.append(ResponseOutput('auxiliary', 'feature_hash', response.feature_vector))

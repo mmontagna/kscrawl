@@ -27,7 +27,8 @@ class S3Store(AbstractProcessor):
       if (self.buffer_expired(domain, crawl_id)):
         self.write(domain, crawl_id)
 
-  def process(self, url, response):
+  def process(self, crawlRequest, response):
+    url = crawlRequest.link
     domain = urlparse(url).netloc
     for output in response.output:
       self.crawl_folders[response.request.crawl_id] = response.request.output_prefix

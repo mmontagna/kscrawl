@@ -38,7 +38,7 @@ class SimpleCrawler(AbstractCrawler):
           response = self.http.get(crawlRequest)
           self.limit -= 1
 
-          self.process(crawlRequest.link, response)
+          self.process(crawlRequest, response)
 
           for link in response.soup.findAll('a'):
               if link.get('href'):

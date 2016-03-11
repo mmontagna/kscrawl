@@ -12,7 +12,8 @@ class LocalFileStore(AbstractProcessor):
       pass
     self.output = defaultdict(lambda: defaultdict(lambda : []))
 
-  def process(self, url, response):
+  def process(self, crawlRequest, response):
+    url = crawlRequest.link
     domain = urlparse(url).netloc
     self.output[domain][response.request.crawl_id].append((url, response.raw))
 

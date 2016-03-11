@@ -1,7 +1,7 @@
 
 class AbstractProcessor:
 
-  def process(self, url, response):
+  def process(self, crawlRequest, response):
     raise NotImplementedError()
 
   def tick(self):
