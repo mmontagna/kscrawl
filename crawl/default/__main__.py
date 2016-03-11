@@ -6,6 +6,8 @@ from crawl.LinkCrawlRequest import LinkCrawlRequest
 from crawl.http.Simple import SimpleHttp
 from crawl.processors.S3 import S3Store
 from crawl.processors.PageVectorizer import PageVectorizer
+from crawl.processors.Screenshot import ScreenShot
+
 import crawl.default
 
 try:
@@ -24,11 +26,13 @@ try:
     crawler.throttle_control = (1 / args.global_throttle)
 
   crawler.add_response_processor(PageVectorizer())
-  crawler.add_response_processor(S3Store())
+  crawler.add_response_processor(ScreenShot())
+  crawler.add_response_processor(S3Store()) #Order matters here S3Store uses the results from the previous processors
 
   crawler.crawl()
 except KeyboardInterrupt:
     print 'Interrupted'
+    crawler.close()
     try:
         sys.exit(0)
     except SystemExit:

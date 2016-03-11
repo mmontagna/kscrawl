@@ -10,6 +10,7 @@ parser.add_argument('--name_space', default='default', help='The crawl namespace
 parser.add_argument('--urls', required=True, help='URLs to start crawl with', nargs='*')
 parser.add_argument('--depth', default=float('+inf'), help='Depth limit', type=int)
 parser.add_argument('--output_bucket', required=True)
+parser.add_argument('--screenshot', default=False, help='whether to take screen shots. (requires a selenium server)')
 parser.add_argument('--output_prefix', default='crawl', help='enclosing s3 prefix')
 parser.add_argument('--restrict', nargs='*', default=False, help='If true then dont crawl other domains')
 
@@ -35,5 +36,6 @@ RQ.send([LinkCrawlRequest(url,
                           depth_limit=args.depth,
                           accept=accept,
                           output_prefix=args.output_prefix,
-                          bucket=args.output_bucket
+                          bucket=args.output_bucket,
+                          options = {'screenshot' : args.screenshot}
                           ) for url in args.urls])

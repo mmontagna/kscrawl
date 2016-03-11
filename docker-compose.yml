@@ -6,9 +6,16 @@ pybelt:
   build: .
   links:
     - redis
+    - selenium
   command: sleep 1000000
   volumes:
     - ./:/app
     - ~/.aws:/root/.aws
   environment:
     - REDIS_HOST=redis
+    - SELENIUM_SERVER=http://selenium:4444/wd/hub
+
+selenium:
+    image: selenium/standalone-firefox
+    ports:
+        - "4444"

@@ -5,8 +5,9 @@ from time import time
 from urlparse import urlparse
 
 class S3Store(AbstractProcessor):
-  def __init__(self, buffer_size=1000, periodic_flush=60):
+  def __init__(self, buffer_size=1000, periodic_flush=5):
     #domain.crawl_id.folder.name
+    self.raw_output = defaultdict(lambda: defaultdict(lambda : defaultdict(lambda : defaultdict(lambda : []))))
     self.output = defaultdict(lambda: defaultdict(lambda : defaultdict(lambda : defaultdict(lambda : []))))
     self.last_processed_times = defaultdict(lambda: defaultdict(lambda : time()))
     self.crawl_folders = {}
@@ -31,11 +32,14 @@ class S3Store(AbstractProcessor):
     url = crawlRequest.link
     domain = urlparse(url).netloc
     for output in response.output:
-      self.crawl_folders[response.request.crawl_id] = response.request.output_prefix
-      self.crawl_buckets[response.request.crawl_id] = response.request.output_bucket
+      if (output.raw):
+        self.raw_output[domain][response.request.crawl_id][output.folder][output.name] = output.content
+      else:
+        self.crawl_folders[response.request.crawl_id] = response.request.output_prefix
+        self.crawl_buckets[response.request.crawl_id] = response.request.output_bucket
 
-      self.output[domain][response.request.crawl_id][output.folder][output.name].append((url, (output.content, response.accessed)))
-      self.last_processed_times[domain][response.request.crawl_id] = time()
+        self.output[domain][response.request.crawl_id][output.folder][output.name].append((url, (output.content, response.accessed)))
+        self.last_processed_times[domain][response.request.crawl_id] = time()
     self.checkBuffer()
 
   def buffer_size(self, domain, crawl_id):
@@ -58,14 +62,37 @@ class S3Store(AbstractProcessor):
 
   def write(self, group, crawl_id):
     object_ids = defaultdict(lambda : str(uuid.uuid4()))
-    for folder, name in [(folder, name) for folder in self.output[group][crawl_id] for name in self.output[group][crawl_id][folder]]:
-      print 'writing', group, crawl_id, folder, name
-      content = json.dumps(dict([(x[0], x[1]) for x in self.output[group][crawl_id][folder][name]]))
-      crawl_folder = self.crawl_folders[crawl_id]
-      self.writeToS3(crawl_folder, group, folder, name, crawl_id, content, object_ids[group + crawl_id])
-      self.output[group][crawl_id][folder][name] = []
-    del self.output[group][crawl_id]
+    try:
+      for folder, name in [(folder, name) for folder in self.raw_output[group][crawl_id] for name in self.raw_output[group][crawl_id][folder]]:
+        try:
+          crawl_folder = self.crawl_folders[crawl_id]
+          content = self.raw_output[group][crawl_id][folder][name]
+          self.rawWriteToS3(crawl_folder, group, folder, name, crawl_id, content, object_ids[group + crawl_id])
+          self.raw_output[group][crawl_id][folder][name] = []
+        except Exception as e:
+          print e
+    finally:
+      del self.raw_output[group][crawl_id]
 
+    try:
+      for folder, name in [(folder, name) for folder in self.output[group][crawl_id] for name in self.output[group][crawl_id][folder]]:
+        try:
+          print 'writing', group, crawl_id, folder, name
+          content = json.dumps(dict([(x[0], x[1]) for x in self.output[group][crawl_id][folder][name]]))
+          crawl_folder = self.crawl_folders[crawl_id]
+          self.writeToS3(crawl_folder, group, folder, name, crawl_id, content, object_ids[group + crawl_id])
+          self.output[group][crawl_id][folder][name] = []
+        except Exception as e:
+          print e
+    finally:
+      del self.output[group][crawl_id]
+
+  def rawWriteToS3(self, crawl_folder, group, folder, name, crawl_id, content, object_id):
+    key = os.path.join(crawl_folder, group, crawl_id, folder, object_id + name)
+    try:
+      self.get_bucket_for(self.crawl_buckets[crawl_id]).Object(key).put(Body=content)
+    except Exception as e:
+      print e
   def writeToS3(self, crawl_folder, group, folder, name, crawl_id, content, object_id):
     key = os.path.join(crawl_folder, group, crawl_id, folder, name + '.' + object_id + '.json.gz')
     fgz = cStringIO.StringIO()

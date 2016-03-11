@@ -2,7 +2,8 @@ import urlnorm, urlparse, re
 
 class LinkCrawlRequest:
 
-  def __init__(self, link, parent = None, crawl_id='0', depth_limit=float('+inf'), accept=None, output_prefix='crawl', bucket=None):
+  def __init__(self, link, parent = None, crawl_id='0', depth_limit=float('+inf'),
+    accept=None, output_prefix='crawl', bucket=None, options = {}):
     try:
       self.link = urlnorm.norm(urlparse.urljoin(parent.link if parent else '', link))
       self.link = self.link.split('#')[0]
@@ -15,6 +16,7 @@ class LinkCrawlRequest:
     self.accept = parent.accept if parent else accept
     self.output_prefix = parent.output_prefix if parent else output_prefix
     self.output_bucket = parent.output_bucket if parent else bucket
+    self.options = parent.options if parent else options
 
   def follow(self, parent):
     return self.link != '' and self.depth < self.depth_limit and (self.accept is None or self.accept(self.link, parent))
