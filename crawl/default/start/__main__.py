@@ -26,7 +26,10 @@ elif (args.restrict):
 else:
   accept = None
 
-print "Adding", args.urls, 'to crawl', crawl_id, 'depth limit', args.depth
+if (args.urls[0].startswith('file://')):
+  args.urls = open(args.urls[0][len('file://'):]).read().split()
+
+print "Adding", len(args.urls), 'to crawl', crawl_id, 'depth limit', args.depth
 RQ.send([LinkCrawlRequest(url,
                           crawl_id=crawl_id,
                           depth_limit=args.depth,
