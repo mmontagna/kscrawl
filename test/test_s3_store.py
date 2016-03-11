@@ -25,8 +25,8 @@ class TestS3Store(unittest.TestCase):
     resp.output.append(ResponseOutput('content', 'pages', {'content' : 'page', 'accessed' : 123}))
     resp.output.append(ResponseOutput('aux', 'index', {'features' : [(1,3),(3,4)], 'accessed' : 123}))
     resp.output.append(ResponseOutput('aux', 'index2', {'features' : [(1,3),(3,4)], 'accessed' : 123}))
-    store.process('https://example.com/1', resp)
-    store.process('https://example.com/2', resp)
+    store.process(LinkCrawlRequest('https://example.com/1', bucket='test'), resp)
+    store.process(LinkCrawlRequest('https://example.com/2', bucket='test'), resp)
 
 
 
@@ -36,7 +36,7 @@ class TestS3Store(unittest.TestCase):
     resp = Response("<p>This is, a Test.</p>", LinkCrawlRequest('http://example.com/', bucket='test'))
     resp.output.append(ResponseOutput('content', 'pages', {'content' : 'page', 'accessed' : 123}))
     resp.output.append(ResponseOutput('content', 'images', {'content' : 'page', 'accessed' : 123}))
-    [store.process('https://example.com/1', resp) for i in range(0, 11)]
+    [store.process(LinkCrawlRequest('https://example.com/1', bucket='test'), resp) for i in range(0, 11)]
     store.close()
 
     bucket.Object.assert_called_with(mock.ANY)
@@ -48,7 +48,7 @@ class TestS3Store(unittest.TestCase):
     resp = Response("<p>This is, a Test.</p>", LinkCrawlRequest('http://example.com/', bucket='test'))
     resp.output.append(ResponseOutput('content', 'pages', {'content' : 'page', 'accessed' : 123}))
     resp.output.append(ResponseOutput('content', 'images', {'content' : 'page', 'accessed' : 123}))
-    [store.process('https://example.com/1', resp) for i in range(0, 11)]
+    [store.process(LinkCrawlRequest('https://example.com/1', bucket='test'), resp) for i in range(0, 11)]
     store.close()
 
   def test_periodic_flush(self):
@@ -57,7 +57,7 @@ class TestS3Store(unittest.TestCase):
     store.write = MagicMock()
     resp = Response("<p>This is, a Test.</p>", LinkCrawlRequest('http://example.com/', bucket='test'))
     resp.output.append(ResponseOutput('content', 'pages', {'content' : 'page', 'accessed' : 123}))
-    [store.process('https://example.com/1', resp) for i in range(0, 11)]
+    [store.process(LinkCrawlRequest('https://example.com/1', bucket='test'), resp) for i in range(0, 11)]
     time.sleep(0.1)
     store.write.assert_not_called()
     store.tick()

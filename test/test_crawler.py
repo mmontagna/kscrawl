@@ -36,10 +36,10 @@ class TestCrawler(unittest.TestCase):
     fakeProcessor = self.make_processor_mock()
     crawler.add_response_processor(fakeProcessor)
     crawler.crawl()
-    fakeProcessor.process.assert_any_call('https://test.com/', mock.ANY)
-    fakeProcessor.process.assert_any_call('https://test.com/1', mock.ANY)
-    fakeProcessor.process.assert_any_call('https://test.com/2', mock.ANY)
-    fakeProcessor.process.assert_any_call('https://test.com/3', mock.ANY)
+    fakeProcessor.process.assert_any_call(LinkCrawlRequest('https://test.com/'), mock.ANY)
+    fakeProcessor.process.assert_any_call(LinkCrawlRequest('https://test.com/1'), mock.ANY)
+    fakeProcessor.process.assert_any_call(LinkCrawlRequest('https://test.com/2'), mock.ANY)
+    fakeProcessor.process.assert_any_call(LinkCrawlRequest('https://test.com/3'), mock.ANY)
 
   def test_stop_at_depth(self):
     Q = LocalQueue()
@@ -90,15 +90,15 @@ class TestCrawler(unittest.TestCase):
   def test_crawl_specific_filter(self):
     #Test filter does filter
     fakeProcessor = self.setup_crawl_specific_filter(domain_filter)
-    fakeProcessor.process.assert_any_call('https://test.com/', mock.ANY)
-    fakeProcessor.process.assert_any_call('https://test.com/0', mock.ANY)
-    fakeProcessor.process.assert_any_call('https://test.com/1', mock.ANY)
+    fakeProcessor.process.assert_any_call(LinkCrawlRequest('https://test.com/'), mock.ANY)
+    fakeProcessor.process.assert_any_call(LinkCrawlRequest('https://test.com/0'), mock.ANY)
+    fakeProcessor.process.assert_any_call(LinkCrawlRequest('https://test.com/1'), mock.ANY)
     self.assertEqual(3, len(fakeProcessor.process.call_args_list)) #No other calls => didn't crawl notest.com
 
     #Make sure we get the other urls without the filter
     fakeProcessor = self.setup_crawl_specific_filter(None)
-    fakeProcessor.process.assert_any_call('https://nottest.com/0', mock.ANY)
-    fakeProcessor.process.assert_any_call('https://nottest.com/1', mock.ANY)
+    fakeProcessor.process.assert_any_call(LinkCrawlRequest('https://nottest.com/0'), mock.ANY)
+    fakeProcessor.process.assert_any_call(LinkCrawlRequest('https://nottest.com/1'), mock.ANY)
 
 
 
