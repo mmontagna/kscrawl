@@ -88,13 +88,13 @@ class S3Store(AbstractProcessor):
       del self.output[group][crawl_id]
 
   def rawWriteToS3(self, crawl_folder, group, folder, name, crawl_id, content, object_id):
-    key = os.path.join(crawl_folder, group, crawl_id, folder, object_id + name)
+    key = os.path.join(crawl_folder, crawl_id, group, folder, object_id + name)
     try:
       self.get_bucket_for(self.crawl_buckets[crawl_id]).Object(key).put(Body=content)
     except Exception as e:
       print e
   def writeToS3(self, crawl_folder, group, folder, name, crawl_id, content, object_id):
-    key = os.path.join(crawl_folder, group, crawl_id, folder, name + '.' + object_id + '.json.gz')
+    key = os.path.join(crawl_folder, crawl_id, group, folder, name + '.' + object_id + '.json.gz')
     fgz = cStringIO.StringIO()
     with gzip.GzipFile(mode='wb', fileobj=fgz) as gzip_obj:
         gzip_obj.write(content)
