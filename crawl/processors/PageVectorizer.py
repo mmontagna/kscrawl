@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 class PageVectorizer(AbstractProcessor):
   tbl = dict.fromkeys(i for i in xrange(sys.maxunicode)
                         if unicodedata.category(unichr(i)).startswith('P'))
-  def __init__(self, n_features=100):
+  def __init__(self, n_features=10000):
     self.hasher = FeatureHasher(n_features=n_features, non_negative=True)
 
   """
