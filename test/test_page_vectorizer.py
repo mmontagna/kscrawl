@@ -5,7 +5,7 @@ from crawl.LinkCrawlRequest import LinkCrawlRequest
 from crawl.processors.PageVectorizer import PageVectorizer
 
 class TestPageVectorizer(unittest.TestCase):
-  pv = PageVectorizer()
+  pv = PageVectorizer(n_features=100)
   def test_send_get(self):
 
     request = LinkCrawlRequest('http://example.com/')
