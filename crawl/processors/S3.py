@@ -93,6 +93,7 @@ class S3Store(AbstractProcessor):
       self.get_bucket_for(self.crawl_buckets[crawl_id]).Object(key).put(Body=content)
     except Exception as e:
       print e
+
   def writeToS3(self, crawl_folder, group, folder, name, crawl_id, content, object_id):
     key = os.path.join(crawl_folder, crawl_id, folder, group, name + '.' + object_id + '.json.gz')
     fgz = cStringIO.StringIO()
