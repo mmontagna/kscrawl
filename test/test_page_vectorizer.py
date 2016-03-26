@@ -19,11 +19,11 @@ class TestPageVectorizer(unittest.TestCase):
 
   def test_text_split_correctly(self):
     resp = Response("<p>a test</p><p>Yep</p>", None)
-    self.assertEquals(['a', 'test', 'yep'], self.pv.clean_and_filter(resp))
+    self.assertEquals(['test', 'yep'], self.pv.clean_and_filter(resp))
 
   def test_text_cleaned_correct(self):
-    resp = Response("<p>This is, a Test.</p>", None)
-    self.assertEquals(['this', 'is', 'a', 'test'], self.pv.clean_and_filter(resp))
+    resp = Response("<p>This is, a Test to see if we remove stop words.</p>", None)
+    self.assertEquals(['test', 'see', 'remove', 'stop', 'words'], self.pv.clean_and_filter(resp))
 
   def test_hash_stability(self):
     '''

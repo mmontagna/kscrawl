@@ -4,13 +4,16 @@ from sklearn.feature_extraction import FeatureHasher
 from crawl.processors import ResponseOutput
 import itertools, string, sys, unicodedata
 from bs4 import BeautifulSoup
+import nltk
+from nltk.corpus import stopwords
 
 class PageVectorizer(AbstractProcessor):
   tbl = dict.fromkeys(i for i in xrange(sys.maxunicode)
                         if unicodedata.category(unichr(i)).startswith('P'))
   def __init__(self, n_features=10000):
     self.hasher = FeatureHasher(n_features=n_features, non_negative=True)
-
+    nltk.download('stopwords')
+    self.stopwords = set(stopwords.words('english'))
   """
   Args:
     response: A response object
@@ -25,6 +28,8 @@ class PageVectorizer(AbstractProcessor):
     text = soup.get_text().translate(self.tbl)
     text = filter(lambda x: x != '' and not x.isspace(), text.split())
     text = [x.lower() for x in text]
+    #Remove stop words
+    text = [x for x in text if x not in self.stopwords]
     return text
 
   """
