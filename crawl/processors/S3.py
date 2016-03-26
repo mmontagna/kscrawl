@@ -67,7 +67,7 @@ class S3Store(AbstractProcessor):
         try:
           crawl_folder = self.crawl_folders[crawl_id]
           content = self.raw_output[group][crawl_id][folder][name]
-          self.rawWriteToS3(crawl_folder, group, folder, name, crawl_id, content, object_ids[group + crawl_id])
+          self.rawWriteToS3(crawl_folder, group, folder, name, crawl_id, content)
           self.raw_output[group][crawl_id][folder][name] = []
         except Exception as e:
           print e
@@ -87,8 +87,8 @@ class S3Store(AbstractProcessor):
     finally:
       del self.output[group][crawl_id]
 
-  def rawWriteToS3(self, crawl_folder, group, folder, name, crawl_id, content, object_id):
-    key = os.path.join(crawl_folder, crawl_id, folder, group, object_id + name)
+  def rawWriteToS3(self, crawl_folder, group, folder, name, crawl_id, content):
+    key = os.path.join(crawl_folder, crawl_id, folder, group, name)
     try:
       self.get_bucket_for(self.crawl_buckets[crawl_id]).Object(key).put(Body=content)
     except Exception as e:
