@@ -12,7 +12,8 @@ parser.add_argument('--depth', default=float('+inf'), help='Depth limit', type=i
 parser.add_argument('--output_bucket', required=True)
 parser.add_argument('--screenshot', default=False, help='whether to take screen shots. (requires a selenium server)')
 parser.add_argument('--output_prefix', default='crawl', help='enclosing s3 prefix')
-parser.add_argument('--restrict', nargs='*', default=False, help='If true then dont crawl other domains')
+parser.add_argument('--restrict-origin', action='store_true', default=False, help='If true then dont crawl other domains')
+parser.add_argument('--restrict-domains', nargs='*', default=False, help='If true then only follow links on given domains.')
 
 args = parser.parse_args()
 
@@ -20,10 +21,11 @@ crawl_id = str(datetime.date.today()) + '-' + str(uuid.uuid4())
 
 RQ = RedisQueue(name_space=args.name_space, hash_function=crawl.default.domain_hash)
 
-if (args.restrict == 'origin'):
+if (args.restrict_origin):
+  print "setting origin filter"
   accept = domain_filter
-elif (args.restrict):
-  accept = create_domains_filter(args.restrict)
+elif (args.restrict_domains):
+  accept = create_domains_filter(args.restrict_domains)
 else:
   accept = None
 
