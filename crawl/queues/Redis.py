@@ -8,7 +8,7 @@ class RedisQueue(AbstractQueue):
   queue_prefix = 'redisqueue:worker:queue:'
   worker_marker_prefix = 'redisqueue:worker:marker:'
 
-  def __init__(self, registration_expiration_ms=60000, hash_function=hash, name_space='default', allow_registration=False):
+  def __init__(self, registration_expiration_ms=60000*5, hash_function=hash, name_space='default', allow_registration=False):
     self.allow_registration = allow_registration
     self.queue = []
     self.redis = redis.StrictRedis(host=os.environ['REDIS_HOST'], port=6379, db=0)
