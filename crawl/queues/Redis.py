@@ -1,5 +1,7 @@
 import redis, os, uuid
 import dill as pickle
+import random
+
 from crawl.queues.Abstract import AbstractQueue
 
 class RedisQueue(AbstractQueue):
@@ -83,8 +85,10 @@ class RedisQueue(AbstractQueue):
     i = 0
     while v is not None:
       i += 1
-      self.redis.lpush(self.generate_queue(worker_number - 1), v)
+      self.redis.lpush(self.generate_queue(random.randint(0, worker_number - 1)), v)
       v = self.redis.lpop(self.generate_queue(worker_number))
+
+
 
   def get_my_client_number(self):
     return sorted(self.get_clients()).index(self.generate_worker_marker())
