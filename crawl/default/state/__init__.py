@@ -12,12 +12,10 @@ def summarize_state(RD):
 
   for key in state.keys():
     state[key]['domains'] = dict(state[key]['domains'])
-  items_in_queues = RQ.items_in_queues()
   return {
     'num_workers': RQ.number_clients(),
-    'in_flight': sum(items_in_queues),
-    'crawls' : dict(state),
-    'items_per_worker': items_in_queues
+    'in_flight': RQ.items_in_queues(),
+    'crawls' : dict(state)
     }
 
 parser = argparse.ArgumentParser(description='Add URLs to start a crawl')
