@@ -64,7 +64,7 @@ class RedisQueue(AbstractQueue):
 
   def items_in_queues(self):
     num = self.number_clients()
-    return sum([self.redis.llen(self.generate_queue(i)) for i in range(self.number_clients())])
+    return [self.redis.llen(self.generate_queue(i)) for i in range(self.number_clients())]
 
   def get_clients(self):
     return self.redis.keys(self.worker_marker_prefix + self.name_space + '*')
