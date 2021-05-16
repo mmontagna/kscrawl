@@ -56,7 +56,8 @@ class SimpleCrawler(AbstractCrawler):
           crawlRequest.addAttempt()
           if (crawlRequest.attempts < self.retry_limit):
             self.queue.send([crawlRequest])
-          print "Error on link - retry", traceback.print_exception(e)
+          traceback.print_exc()
+          print "Error on link - retry", e
 
     finally:
       self.close()
