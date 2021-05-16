@@ -20,7 +20,6 @@ setup(
   data_files = [('', ['VERSION', 'README.md'])],
   include_package_data=True,
   python_requires=">=2.7",
-  license=open(os.path.join(dir_path, 'LICENSE')).read(),
   install_requires=[
     "attrdict==2.0.0",
     "beautifulsoup4==4.4.1",
