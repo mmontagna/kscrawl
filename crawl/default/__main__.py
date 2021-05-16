@@ -1,12 +1,11 @@
-import inspect, uuid, argparse, sys, os
+import importlib, inspect, uuid, argparse, sys, os
 from crawl.crawler import SimpleCrawler
 from crawl.queues.Redis import RedisQueue
 from crawl.sets import RedisSet
 from crawl.LinkCrawlRequest import LinkCrawlRequest
 from crawl.http.Simple import SimpleHttp
-from crawl.processors.S3 import S3Store
-from crawl.processors.PageVectorizer import PageVectorizer
-from crawl.processors.Screenshot import ScreenShot
+from crawl.processors.Abstract import AbstractProcessor
+
 
 import crawl.default
 
@@ -14,6 +13,7 @@ try:
   parser = argparse.ArgumentParser(description='Run a default crawler')
   parser.add_argument('--name_space', default='default', help='The crawl namespace.')
   parser.add_argument('--global_throttle', default=None, help='Max req to make per second from this crawler', type=float)
+  parser.add_argument('--processors', default=[], help='', nargs='+', type=str)
   args = parser.parse_args()
 
   Q = RedisQueue(name_space=args.name_space, hash_function=crawl.default.domain_hash)
@@ -25,9 +25,11 @@ try:
   if (args.global_throttle):
     crawler.throttle_control = (1 / args.global_throttle)
 
-  crawler.add_response_processor(PageVectorizer())
-  crawler.add_response_processor(ScreenShot())
-  crawler.add_response_processor(S3Store()) #Order matters here S3Store uses the results from the previous processors
+  for processor in args.processors:
+    processor =  importlib.import_module(processor)
+    for name, obj in processor.__dict__.items():
+      if inspect.isclass(obj) and issubclass(obj, AbstractProcessor):
+        crawler.add_response_processor(obj())
 
   crawler.crawl()
 except KeyboardInterrupt:
