@@ -23,8 +23,8 @@ setup(
   install_requires=[
     "attrdict==2.0.0",
     "beautifulsoup4==4.4.1",
-    "boto3==1.2.4",
-    "botocore==1.3.29",
+    "boto3>=1.2.4",
+    "botocore>=1.3.29",
     "chardet==2.3.0",
     "coverage==4.0.3",
     "dill==0.2.5",
