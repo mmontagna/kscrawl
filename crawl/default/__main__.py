@@ -28,7 +28,7 @@ try:
   for processor in args.processors:
     processor =  importlib.import_module(processor)
     for name, obj in processor.__dict__.items():
-      if inspect.isclass(obj) and issubclass(obj, AbstractProcessor):
+      if inspect.isclass(obj) and issubclass(obj, AbstractProcessor) and obj is not AbstractProcessor:
         crawler.add_response_processor(obj())
 
   crawler.crawl()
